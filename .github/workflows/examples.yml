@@ -1,0 +1,43 @@
+# Runs this repository's own action against the example projects, so any PR
+# that changes examples/ gets a real slotguard comment.
+name: slotguard examples
+
+on:
+  pull_request:
+    paths:
+      - "examples/**"
+      - "src/**"
+      - "dist/**"
+      - "action.yml"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  foundry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - uses: foundry-rs/foundry-toolchain@v1
+      - uses: ./
+        with:
+          working-directory: examples/foundry-vault
+
+  hardhat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: npm ci
+        working-directory: examples/hardhat-vault
+      - uses: ./
+        with:
+          working-directory: examples/hardhat-vault

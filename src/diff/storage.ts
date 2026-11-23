@@ -75,9 +75,14 @@ export function diffStorage(base: StorageVar[], head: StorageVar[], emit: Emit):
         }
         continue;
       }
+      const span = end(b) - start(h);
+      const fit = span % 32n === 0n ? span / 32n : 0n;
+      const hint = fit > 0n && h.type.kind === "array" && h.type.base.label === "uint256"
+        ? ` Resize it to \`uint256[${fit}]\` to keep it ending where it did.`
+        : "";
       emit(
         "storage-gap-changed",
-        `Gap \`${b.label}\` went from \`${b.type.label}\` at ${pos(b)} to \`${h.type.label}\` at ${pos(h)}, so it no longer ends at the same slot and everything after it shifts.`,
+        `Gap \`${b.label}\` went from \`${b.type.label}\` at ${pos(b)} to \`${h.type.label}\` at ${pos(h)}, so it no longer ends at the same slot and everything after it shifts.${hint}`,
       );
       continue;
     }
@@ -123,8 +128,11 @@ export function diffStorage(base: StorageVar[], head: StorageVar[], emit: Emit):
       emit("storage-var-appended", `${describe(h)} added at ${pos(h)} in space taken from a storage gap.`);
     } else {
       const overlapped = base.find((b) => start(b) < e && s < end(b));
-      const where = overlapped ? `, on top of base variable ${describe(overlapped)}` : "";
-      emit("storage-var-inserted", `${describe(h)} was inserted at ${pos(h)}${where}. Variables after it shift and read the wrong data.`);
+      if (overlapped) {
+        emit("storage-var-inserted", `${describe(h)} was inserted at ${pos(h)}, on top of base variable ${describe(overlapped)}. Variables after it shift and read the wrong data.`);
+      } else {
+        emit("storage-var-packed", `${describe(h)} was added at ${pos(h)}, in bytes the base layout left unused. Nothing moved, but the bytes must be zero on deployed proxies.`);
+      }
     }
   }
 }

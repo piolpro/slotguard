@@ -1833,6 +1833,10 @@ var RULES = {
   "storage-var-removed": { severity: "error", description: "A state variable from the base layout no longer exists." },
   "storage-var-moved": { severity: "error", description: "A state variable now lives at a different slot or offset." },
   "storage-var-inserted": { severity: "error", description: "A new state variable occupies storage that was used in the base layout." },
+  "storage-var-packed": {
+    severity: "warning",
+    description: "A new state variable was packed into bytes the base layout left unused, before the end of the layout."
+  },
   "storage-var-replaced": { severity: "error", description: "A different variable with an incompatible type occupies an existing slot." },
   "storage-var-renamed": { severity: "warning", description: "A variable at the same position was renamed (same type). Safe for storage, but check intent." },
   "storage-type-changed": { severity: "error", description: "A state variable's type changed in a way that reinterprets existing data." },
@@ -2148,9 +2152,12 @@ function diffStorage(base, head, emit) {
         }
         continue;
       }
+      const span = end(b) - start(h);
+      const fit = span % 32n === 0n ? span / 32n : 0n;
+      const hint = fit > 0n && h.type.kind === "array" && h.type.base.label === "uint256" ? ` Resize it to \`uint256[${fit}]\` to keep it ending where it did.` : "";
       emit(
         "storage-gap-changed",
-        `Gap \`${b.label}\` went from \`${b.type.label}\` at ${pos(b)} to \`${h.type.label}\` at ${pos(h)}, so it no longer ends at the same slot and everything after it shifts.`
+        `Gap \`${b.label}\` went from \`${b.type.label}\` at ${pos(b)} to \`${h.type.label}\` at ${pos(h)}, so it no longer ends at the same slot and everything after it shifts.${hint}`
       );
       continue;
     }
@@ -2192,8 +2199,11 @@ function diffStorage(base, head, emit) {
       emit("storage-var-appended", `${describe(h)} added at ${pos(h)} in space taken from a storage gap.`);
     } else {
       const overlapped = base.find((b) => start(b) < e && s < end(b));
-      const where = overlapped ? `, on top of base variable ${describe(overlapped)}` : "";
-      emit("storage-var-inserted", `${describe(h)} was inserted at ${pos(h)}${where}. Variables after it shift and read the wrong data.`);
+      if (overlapped) {
+        emit("storage-var-inserted", `${describe(h)} was inserted at ${pos(h)}, on top of base variable ${describe(overlapped)}. Variables after it shift and read the wrong data.`);
+      } else {
+        emit("storage-var-packed", `${describe(h)} was added at ${pos(h)}, in bytes the base layout left unused. Nothing moved, but the bytes must be zero on deployed proxies.`);
+      }
     }
   }
 }
@@ -2288,7 +2298,7 @@ function run(cmd, args, opts) {
     env: opts.env ?? process.env,
     encoding: "utf8",
     maxBuffer: 256 * 1024 * 1024,
-    stdio: opts.inherit ? ["ignore", "inherit", "inherit"] : ["ignore", "pipe", "pipe"]
+    stdio: opts.inherit ? ["ignore", 2, "inherit"] : ["ignore", "pipe", "pipe"]
   });
   if (res.error) throw new Error(`Failed to run ${cmd}: ${res.error.message}`);
   const out = { status: res.status ?? 1, stdout: res.stdout ?? "", stderr: res.stderr ?? "" };
@@ -2369,12 +2379,12 @@ function snapshotFoundry(root, opts = {}) {
     const env = { ...process.env, SLOTGUARD_OUT: outDir, FOUNDRY_OUT: outDir, FOUNDRY_CACHE_PATH: (0, import_node_path2.join)(tmp, "cache") };
     opts.log?.(`Building ${root} with forge`);
     if (opts.buildCommand) {
-      runShell(opts.buildCommand, { cwd: root, env, inherit: true });
+      runShell(opts.buildCommand, { cwd: root, env, inherit: Boolean(opts.log) });
     } else {
       run(
         "forge",
         ["build", "--extra-output", "storageLayout", "--skip", "test", "--skip", "script", "--out", outDir, "--cache-path", (0, import_node_path2.join)(tmp, "cache")],
-        { cwd: root, env, inherit: true }
+        { cwd: root, env, inherit: Boolean(opts.log) }
       );
     }
   }
@@ -2429,8 +2439,8 @@ var import_node_path3 = require("node:path");
 function snapshotHardhat(root, opts = {}) {
   if (opts.build !== false) {
     opts.log?.(`Compiling ${root} with Hardhat`);
-    if (opts.buildCommand) runShell(opts.buildCommand, { cwd: root, inherit: true });
-    else run("npx", ["--no-install", "hardhat", "compile"], { cwd: root, inherit: true });
+    if (opts.buildCommand) runShell(opts.buildCommand, { cwd: root, inherit: Boolean(opts.log) });
+    else run("npx", ["--no-install", "hardhat", "compile"], { cwd: root, inherit: Boolean(opts.log) });
   }
   return readHardhatBuildInfo((0, import_node_path3.join)(root, opts.artifacts ?? "artifacts", "build-info"), opts.log);
 }
@@ -2607,7 +2617,7 @@ function checkoutBase(headRoot, ref, opts) {
     const rel = (0, import_node_path5.relative)(headRoot, opts.projectDir);
     const baseProject = (0, import_node_path5.join)(dir, rel);
     if (opts.setupCommand) {
-      runShell(opts.setupCommand, { cwd: baseProject, inherit: true });
+      runShell(opts.setupCommand, { cwd: baseProject, inherit: Boolean(opts.log) });
     } else {
       setupSubmodules(headRoot, dir, sha, opts.log);
       for (const prefix of /* @__PURE__ */ new Set([rel, ""])) setupNodeModules(headRoot, dir, sha, prefix, opts.log);
@@ -2655,7 +2665,7 @@ function setupNodeModules(headRoot, baseRoot, sha, prefix, log) {
     (0, import_node_fs5.symlinkSync)(headModules, target, "dir");
   } else {
     log?.(`${(0, import_node_path5.join)(prefix, file)} differs on the base branch; running \`${install}\``);
-    runShell(install, { cwd: (0, import_node_path5.join)(baseRoot, prefix), inherit: true });
+    runShell(install, { cwd: (0, import_node_path5.join)(baseRoot, prefix), inherit: Boolean(log) });
   }
 }
 function setupSoldeer(headRoot, baseRoot, sha, prefix, log) {
@@ -2668,7 +2678,7 @@ function setupSoldeer(headRoot, baseRoot, sha, prefix, log) {
     (0, import_node_fs5.symlinkSync)(headDeps, target, "dir");
   } else {
     log?.("soldeer.lock differs on the base branch; running `forge soldeer install`");
-    run("forge", ["soldeer", "install"], { cwd: (0, import_node_path5.join)(baseRoot, prefix), inherit: true });
+    run("forge", ["soldeer", "install"], { cwd: (0, import_node_path5.join)(baseRoot, prefix), inherit: Boolean(log) });
   }
 }
 
@@ -2908,7 +2918,11 @@ function main(argv) {
       }
     });
     result = res.result;
-    labels = { baseLabel: `${base} (${res.baseSha.slice(0, 7)})`, headLabel: `HEAD (${res.headSha.slice(0, 7)})` };
+    const dirty = git(repoRoot(root), ["status", "--porcelain", "--", "."]).stdout.trim() !== "";
+    labels = {
+      baseLabel: `${base} (${res.baseSha.slice(0, 7)})`,
+      headLabel: dirty ? `working tree (on ${res.headSha.slice(0, 7)})` : `HEAD (${res.headSha.slice(0, 7)})`
+    };
   } else {
     throw new UsageError(`Unknown command "${command}"`);
   }

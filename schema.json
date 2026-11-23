@@ -80,6 +80,15 @@
           ],
           "description": "A new state variable occupies storage that was used in the base layout."
         },
+        "storage-var-packed": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "A new state variable was packed into bytes the base layout left unused, before the end of the layout."
+        },
         "storage-var-replaced": {
           "enum": [
             "error",

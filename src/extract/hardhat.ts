@@ -36,8 +36,8 @@ interface BuildInfo {
 export function snapshotHardhat(root: string, opts: HardhatOptions = {}): Snapshot {
   if (opts.build !== false) {
     opts.log?.(`Compiling ${root} with Hardhat`);
-    if (opts.buildCommand) runShell(opts.buildCommand, { cwd: root, inherit: true });
-    else run("npx", ["--no-install", "hardhat", "compile"], { cwd: root, inherit: true });
+    if (opts.buildCommand) runShell(opts.buildCommand, { cwd: root, inherit: Boolean(opts.log) });
+    else run("npx", ["--no-install", "hardhat", "compile"], { cwd: root, inherit: Boolean(opts.log) });
   }
   return readHardhatBuildInfo(join(root, opts.artifacts ?? "artifacts", "build-info"), opts.log);
 }

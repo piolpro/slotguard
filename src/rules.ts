@@ -9,6 +9,10 @@ export const RULES: Record<RuleId, RuleInfo> = {
   "storage-var-removed": { severity: "error", description: "A state variable from the base layout no longer exists." },
   "storage-var-moved": { severity: "error", description: "A state variable now lives at a different slot or offset." },
   "storage-var-inserted": { severity: "error", description: "A new state variable occupies storage that was used in the base layout." },
+  "storage-var-packed": {
+    severity: "warning",
+    description: "A new state variable was packed into bytes the base layout left unused, before the end of the layout.",
+  },
   "storage-var-replaced": { severity: "error", description: "A different variable with an incompatible type occupies an existing slot." },
   "storage-var-renamed": { severity: "warning", description: "A variable at the same position was renamed (same type). Safe for storage, but check intent." },
   "storage-type-changed": { severity: "error", description: "A state variable's type changed in a way that reinterprets existing data." },

@@ -48,6 +48,10 @@ describe("diffStorage", () => {
     expect(rules(base, head).sort()).toEqual(["storage-var-inserted", "storage-var-moved"].sort());
   });
 
+  it("warns about a variable packed into unused bytes without moving anything", () => {
+    expect(rules([v("a", 0, addr), v("b", 1)], [v("a", 0, addr), v("fee", 0, bool, 20), v("b", 1)])).toEqual(["storage-var-packed"]);
+  });
+
   it("accepts new variables that consume a storage gap", () => {
     const base = [v("a", 0), v("__gap", 1, gap(49)), v("child", 50)];
     const head = [v("a", 0), v("b", 1), v("__gap", 2, gap(48)), v("child", 50)];

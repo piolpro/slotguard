@@ -29,12 +29,12 @@ export function snapshotFoundry(root: string, opts: FoundryOptions = {}): Snapsh
     const env = { ...process.env, SLOTGUARD_OUT: outDir, FOUNDRY_OUT: outDir, FOUNDRY_CACHE_PATH: join(tmp, "cache") };
     opts.log?.(`Building ${root} with forge`);
     if (opts.buildCommand) {
-      runShell(opts.buildCommand, { cwd: root, env, inherit: true });
+      runShell(opts.buildCommand, { cwd: root, env, inherit: Boolean(opts.log) });
     } else {
       run(
         "forge",
         ["build", "--extra-output", "storageLayout", "--skip", "test", "--skip", "script", "--out", outDir, "--cache-path", join(tmp, "cache")],
-        { cwd: root, env, inherit: true },
+        { cwd: root, env, inherit: Boolean(opts.log) },
       );
     }
   }

@@ -25,7 +25,8 @@ const schema = {
 };
 writeFileSync("schema.json", JSON.stringify(schema, null, 2) + "\n");
 
-const rows = RULE_IDS.map((id) => `| \`${id}\` | ${RULES[id].severity} | ${RULES[id].description} |`);
+const sections = RULE_IDS.map((id) => `## ${id}\n\nDefault severity: **${RULES[id].severity}**\n\n${RULES[id].description}\n`);
+const rows = RULE_IDS.map((id) => `| [\`${id}\`](#${id}) | ${RULES[id].severity} | ${RULES[id].description} |`);
 writeFileSync(
   "docs/rules.md",
   `# Rules
@@ -41,5 +42,6 @@ Every finding has a rule id and a severity. Override severities per rule in the 
 | Rule | Default | Meaning |
 | --- | --- | --- |
 ${rows.join("\n")}
-`,
+
+${sections.join("\n")}`,
 );

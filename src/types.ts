@@ -60,6 +60,7 @@ export type RuleId =
   | "storage-var-removed"
   | "storage-var-moved"
   | "storage-var-inserted"
+  | "storage-var-packed"
   | "storage-var-replaced"
   | "storage-var-renamed"
   | "storage-type-changed"

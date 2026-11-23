@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { runCheck } from "./check.js";
+import { git, repoRoot } from "./git.js";
 import { loadConfig, parseFailOn, parseScope } from "./config.js";
 import { diffSnapshots, shouldFail } from "./diff/index.js";
 import { snapshotProject, type Framework } from "./extract/index.js";
@@ -115,7 +116,11 @@ function main(argv: string[]): number {
       },
     });
     result = res.result;
-    labels = { baseLabel: `${base} (${res.baseSha.slice(0, 7)})`, headLabel: `HEAD (${res.headSha.slice(0, 7)})` };
+    const dirty = git(repoRoot(root), ["status", "--porcelain", "--", "."]).stdout.trim() !== "";
+    labels = {
+      baseLabel: `${base} (${res.baseSha.slice(0, 7)})`,
+      headLabel: dirty ? `working tree (on ${res.headSha.slice(0, 7)})` : `HEAD (${res.headSha.slice(0, 7)})`,
+    };
   } else {
     throw new UsageError(`Unknown command "${command}"`);
   }

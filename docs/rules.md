@@ -10,25 +10,164 @@ Every finding has a rule id and a severity. Override severities per rule in the 
 
 | Rule | Default | Meaning |
 | --- | --- | --- |
-| `storage-var-removed` | error | A state variable from the base layout no longer exists. |
-| `storage-var-moved` | error | A state variable now lives at a different slot or offset. |
-| `storage-var-inserted` | error | A new state variable occupies storage that was used in the base layout. |
-| `storage-var-replaced` | error | A different variable with an incompatible type occupies an existing slot. |
-| `storage-var-renamed` | warning | A variable at the same position was renamed (same type). Safe for storage, but check intent. |
-| `storage-type-changed` | error | A state variable's type changed in a way that reinterprets existing data. |
-| `storage-type-compatible` | warning | A type changed, but the encoding is compatible (e.g. address to contract type, struct members appended inside a mapping). |
-| `storage-var-appended` | info | A new state variable was appended after the existing layout. Safe. |
-| `storage-gap-changed` | error | A storage gap was resized so that the variables after it shift. |
-| `storage-gap-consumed` | info | New variables use space reserved by a storage gap, and the gap shrank to match. Safe. |
-| `storage-layout-missing` | warning | No storage layout was produced for this contract, so storage could not be checked. |
-| `abi-function-removed` | error | A function was removed or its signature (selector) changed. |
-| `abi-function-outputs-changed` | error | A function's return types changed, so existing callers decode the wrong data. |
-| `abi-function-mutability-changed` | warning | A function's state mutability changed (e.g. view to nonpayable, payable to nonpayable). |
-| `abi-event-removed` | error | An event was removed or its signature (topic) changed; indexers and subgraphs stop seeing it. |
-| `abi-event-indexed-changed` | error | An event kept its signature but changed which parameters are indexed, which changes its log layout. |
-| `abi-error-removed` | warning | A custom error was removed or its signature changed. |
-| `abi-receive-removed` | error | The receive function was removed; plain ETH transfers now revert. |
-| `abi-fallback-removed` | error | The fallback function was removed. |
-| `abi-function-added` | info | A function was added. |
-| `abi-event-added` | info | An event was added. |
-| `contract-removed` | warning | A contract that was checked on the base branch no longer exists. |
+| [`storage-var-removed`](#storage-var-removed) | error | A state variable from the base layout no longer exists. |
+| [`storage-var-moved`](#storage-var-moved) | error | A state variable now lives at a different slot or offset. |
+| [`storage-var-inserted`](#storage-var-inserted) | error | A new state variable occupies storage that was used in the base layout. |
+| [`storage-var-packed`](#storage-var-packed) | warning | A new state variable was packed into bytes the base layout left unused, before the end of the layout. |
+| [`storage-var-replaced`](#storage-var-replaced) | error | A different variable with an incompatible type occupies an existing slot. |
+| [`storage-var-renamed`](#storage-var-renamed) | warning | A variable at the same position was renamed (same type). Safe for storage, but check intent. |
+| [`storage-type-changed`](#storage-type-changed) | error | A state variable's type changed in a way that reinterprets existing data. |
+| [`storage-type-compatible`](#storage-type-compatible) | warning | A type changed, but the encoding is compatible (e.g. address to contract type, struct members appended inside a mapping). |
+| [`storage-var-appended`](#storage-var-appended) | info | A new state variable was appended after the existing layout. Safe. |
+| [`storage-gap-changed`](#storage-gap-changed) | error | A storage gap was resized so that the variables after it shift. |
+| [`storage-gap-consumed`](#storage-gap-consumed) | info | New variables use space reserved by a storage gap, and the gap shrank to match. Safe. |
+| [`storage-layout-missing`](#storage-layout-missing) | warning | No storage layout was produced for this contract, so storage could not be checked. |
+| [`abi-function-removed`](#abi-function-removed) | error | A function was removed or its signature (selector) changed. |
+| [`abi-function-outputs-changed`](#abi-function-outputs-changed) | error | A function's return types changed, so existing callers decode the wrong data. |
+| [`abi-function-mutability-changed`](#abi-function-mutability-changed) | warning | A function's state mutability changed (e.g. view to nonpayable, payable to nonpayable). |
+| [`abi-event-removed`](#abi-event-removed) | error | An event was removed or its signature (topic) changed; indexers and subgraphs stop seeing it. |
+| [`abi-event-indexed-changed`](#abi-event-indexed-changed) | error | An event kept its signature but changed which parameters are indexed, which changes its log layout. |
+| [`abi-error-removed`](#abi-error-removed) | warning | A custom error was removed or its signature changed. |
+| [`abi-receive-removed`](#abi-receive-removed) | error | The receive function was removed; plain ETH transfers now revert. |
+| [`abi-fallback-removed`](#abi-fallback-removed) | error | The fallback function was removed. |
+| [`abi-function-added`](#abi-function-added) | info | A function was added. |
+| [`abi-event-added`](#abi-event-added) | info | An event was added. |
+| [`contract-removed`](#contract-removed) | warning | A contract that was checked on the base branch no longer exists. |
+
+## storage-var-removed
+
+Default severity: **error**
+
+A state variable from the base layout no longer exists.
+
+## storage-var-moved
+
+Default severity: **error**
+
+A state variable now lives at a different slot or offset.
+
+## storage-var-inserted
+
+Default severity: **error**
+
+A new state variable occupies storage that was used in the base layout.
+
+## storage-var-packed
+
+Default severity: **warning**
+
+A new state variable was packed into bytes the base layout left unused, before the end of the layout.
+
+## storage-var-replaced
+
+Default severity: **error**
+
+A different variable with an incompatible type occupies an existing slot.
+
+## storage-var-renamed
+
+Default severity: **warning**
+
+A variable at the same position was renamed (same type). Safe for storage, but check intent.
+
+## storage-type-changed
+
+Default severity: **error**
+
+A state variable's type changed in a way that reinterprets existing data.
+
+## storage-type-compatible
+
+Default severity: **warning**
+
+A type changed, but the encoding is compatible (e.g. address to contract type, struct members appended inside a mapping).
+
+## storage-var-appended
+
+Default severity: **info**
+
+A new state variable was appended after the existing layout. Safe.
+
+## storage-gap-changed
+
+Default severity: **error**
+
+A storage gap was resized so that the variables after it shift.
+
+## storage-gap-consumed
+
+Default severity: **info**
+
+New variables use space reserved by a storage gap, and the gap shrank to match. Safe.
+
+## storage-layout-missing
+
+Default severity: **warning**
+
+No storage layout was produced for this contract, so storage could not be checked.
+
+## abi-function-removed
+
+Default severity: **error**
+
+A function was removed or its signature (selector) changed.
+
+## abi-function-outputs-changed
+
+Default severity: **error**
+
+A function's return types changed, so existing callers decode the wrong data.
+
+## abi-function-mutability-changed
+
+Default severity: **warning**
+
+A function's state mutability changed (e.g. view to nonpayable, payable to nonpayable).
+
+## abi-event-removed
+
+Default severity: **error**
+
+An event was removed or its signature (topic) changed; indexers and subgraphs stop seeing it.
+
+## abi-event-indexed-changed
+
+Default severity: **error**
+
+An event kept its signature but changed which parameters are indexed, which changes its log layout.
+
+## abi-error-removed
+
+Default severity: **warning**
+
+A custom error was removed or its signature changed.
+
+## abi-receive-removed
+
+Default severity: **error**
+
+The receive function was removed; plain ETH transfers now revert.
+
+## abi-fallback-removed
+
+Default severity: **error**
+
+The fallback function was removed.
+
+## abi-function-added
+
+Default severity: **info**
+
+A function was added.
+
+## abi-event-added
+
+Default severity: **info**
+
+An event was added.
+
+## contract-removed
+
+Default severity: **warning**
+
+A contract that was checked on the base branch no longer exists.

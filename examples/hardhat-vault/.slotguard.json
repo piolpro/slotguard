@@ -1,0 +1,4 @@
+{
+  "$schema": "https://raw.githubusercontent.com/piolpro/slotguard/main/schema.json",
+  "contracts": ["Vault"]
+}

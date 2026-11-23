@@ -67,7 +67,7 @@ export function checkoutBase(headRoot: string, ref: string, opts: CheckoutOption
     const rel = relative(headRoot, opts.projectDir);
     const baseProject = join(dir, rel);
     if (opts.setupCommand) {
-      runShell(opts.setupCommand, { cwd: baseProject, inherit: true });
+      runShell(opts.setupCommand, { cwd: baseProject, inherit: Boolean(opts.log) });
     } else {
       setupSubmodules(headRoot, dir, sha, opts.log);
       for (const prefix of new Set([rel, ""])) setupNodeModules(headRoot, dir, sha, prefix, opts.log);
@@ -120,7 +120,7 @@ function setupNodeModules(headRoot: string, baseRoot: string, sha: string, prefi
     symlinkSync(headModules, target, "dir");
   } else {
     log?.(`${join(prefix, file)} differs on the base branch; running \`${install}\``);
-    runShell(install, { cwd: join(baseRoot, prefix), inherit: true });
+    runShell(install, { cwd: join(baseRoot, prefix), inherit: Boolean(log) });
   }
 }
 
@@ -134,6 +134,6 @@ function setupSoldeer(headRoot: string, baseRoot: string, sha: string, prefix: s
     symlinkSync(headDeps, target, "dir");
   } else {
     log?.("soldeer.lock differs on the base branch; running `forge soldeer install`");
-    run("forge", ["soldeer", "install"], { cwd: join(baseRoot, prefix), inherit: true });
+    run("forge", ["soldeer", "install"], { cwd: join(baseRoot, prefix), inherit: Boolean(log) });
   }
 }
