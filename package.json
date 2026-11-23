@@ -1,0 +1,54 @@
+{
+  "name": "slotguard",
+  "version": "0.1.0",
+  "description": "Catch storage layout and ABI breaking changes in upgradeable Solidity contracts (Foundry and Hardhat), as a CLI and a GitHub Action that comments on PRs.",
+  "license": "MIT",
+  "author": "Piol",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/piolpro/slotguard.git"
+  },
+  "homepage": "https://github.com/piolpro/slotguard#readme",
+  "bugs": "https://github.com/piolpro/slotguard/issues",
+  "keywords": [
+    "solidity",
+    "upgradeable",
+    "proxy",
+    "storage-layout",
+    "abi",
+    "foundry",
+    "hardhat",
+    "github-action",
+    "openzeppelin",
+    "uups"
+  ],
+  "bin": {
+    "slotguard": "dist/cli.js"
+  },
+  "files": [
+    "dist/cli.js",
+    "README.md",
+    "LICENSE",
+    "docs",
+    "schema.json"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run test/unit",
+    "check": "npm run typecheck && npm run build && npm test",
+    "gen": "esbuild scripts/gen.ts --bundle --platform=node --log-level=warning --outfile=node_modules/.cache/gen.cjs && node node_modules/.cache/gen.cjs"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/picomatch": "^4.0.0",
+    "esbuild": "^0.28.0",
+    "picomatch": "^4.0.2",
+    "typescript": "^5.9.0",
+    "vitest": "^5.1.1"
+  }
+}

@@ -1,0 +1,257 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "slotguard config",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "include": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Globs (source path or source:Contract) to consider. Empty means all."
+    },
+    "exclude": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Globs to skip. Replaces the default list."
+    },
+    "extraExclude": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Globs to skip in addition to the defaults."
+    },
+    "contracts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Contracts always checked, by name, source path or source:Contract glob."
+    },
+    "scope": {
+      "enum": [
+        "upgradeable",
+        "all"
+      ]
+    },
+    "failOn": {
+      "enum": [
+        "error",
+        "warning",
+        "info",
+        "never"
+      ]
+    },
+    "rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "storage-var-removed": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "A state variable from the base layout no longer exists."
+        },
+        "storage-var-moved": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "A state variable now lives at a different slot or offset."
+        },
+        "storage-var-inserted": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "A new state variable occupies storage that was used in the base layout."
+        },
+        "storage-var-replaced": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "A different variable with an incompatible type occupies an existing slot."
+        },
+        "storage-var-renamed": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "A variable at the same position was renamed (same type). Safe for storage, but check intent."
+        },
+        "storage-type-changed": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "A state variable's type changed in a way that reinterprets existing data."
+        },
+        "storage-type-compatible": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "A type changed, but the encoding is compatible (e.g. address to contract type, struct members appended inside a mapping)."
+        },
+        "storage-var-appended": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "A new state variable was appended after the existing layout. Safe."
+        },
+        "storage-gap-changed": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "A storage gap was resized so that the variables after it shift."
+        },
+        "storage-gap-consumed": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "New variables use space reserved by a storage gap, and the gap shrank to match. Safe."
+        },
+        "storage-layout-missing": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "No storage layout was produced for this contract, so storage could not be checked."
+        },
+        "abi-function-removed": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "A function was removed or its signature (selector) changed."
+        },
+        "abi-function-outputs-changed": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "A function's return types changed, so existing callers decode the wrong data."
+        },
+        "abi-function-mutability-changed": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "A function's state mutability changed (e.g. view to nonpayable, payable to nonpayable)."
+        },
+        "abi-event-removed": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "An event was removed or its signature (topic) changed; indexers and subgraphs stop seeing it."
+        },
+        "abi-event-indexed-changed": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "An event kept its signature but changed which parameters are indexed, which changes its log layout."
+        },
+        "abi-error-removed": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "A custom error was removed or its signature changed."
+        },
+        "abi-receive-removed": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "The receive function was removed; plain ETH transfers now revert."
+        },
+        "abi-fallback-removed": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "The fallback function was removed."
+        },
+        "abi-function-added": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "A function was added."
+        },
+        "abi-event-added": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "An event was added."
+        },
+        "contract-removed": {
+          "enum": [
+            "error",
+            "warning",
+            "info",
+            "off"
+          ],
+          "description": "A contract that was checked on the base branch no longer exists."
+        }
+      }
+    }
+  }
+}

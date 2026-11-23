@@ -1,0 +1,51 @@
+name: slotguard
+description: Fail PRs that break storage layout or ABI compatibility of upgradeable Solidity contracts (Foundry and Hardhat).
+author: Piol
+branding:
+  icon: shield
+  color: orange
+inputs:
+  working-directory:
+    description: Project directory containing foundry.toml or hardhat.config.*, relative to the repository root.
+    default: "."
+  base-ref:
+    description: Git ref or SHA to compare against. Defaults to the PR base SHA (pull_request), the merge group base (merge_group) or the previous commit (push).
+    default: ""
+  framework:
+    description: foundry, hardhat or auto.
+    default: auto
+  scope:
+    description: "upgradeable: only contracts that look upgradeable or are listed in the config. all: every deployable contract."
+    default: ""
+  fail-on:
+    description: Lowest severity that fails the step (error, warning, info, never).
+    default: error
+  comment:
+    description: "PR comment mode. on-change: create a comment when there are findings and keep it updated afterwards. always: always comment. never: job summary only."
+    default: on-change
+  config:
+    description: Path to a config file, relative to working-directory. Defaults to .slotguard.json or slotguard.config.json.
+    default: ""
+  build-command:
+    description: Custom build command, run in both checkouts. Must produce artifacts with storage layouts.
+    default: ""
+  base-setup-command:
+    description: Command that installs dependencies in the base checkout when they differ from the head (defaults to the detected package manager's install).
+    default: ""
+  github-token:
+    description: Token used to post the PR comment.
+    default: ${{ github.token }}
+outputs:
+  errors:
+    description: Number of error findings.
+  warnings:
+    description: Number of warning findings.
+  checked:
+    description: Number of contracts compared.
+  report-path:
+    description: Path of the markdown report.
+  json-path:
+    description: Path of the JSON report.
+runs:
+  using: node24
+  main: dist/action.js
